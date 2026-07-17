@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ role|title }} Login{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2><i class="fa-solid fa-right-to-bracket"></i> {{ role|title }} Login</h2>
+    <form method="post" class="form-grid">
+        <label>
+            {% if role == 'student' %}Roll Number{% else %}Username{% endif %}
+            <input name="username" required placeholder="Enter {{ 'roll number' if role == 'student' else 'username' }}"
+                autocomplete="username" />
+        </label>
+        <label>
+            {% if role == 'student' %}Password{% else %}Password{% endif %}
+            <input type="password" name="password" required placeholder="Enter password"
+                autocomplete="current-password" />
+        </label>
+        <button class="btn primary" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+    </form>
+    <p class="muted" style="margin-top: 16px;">
+        {% if role == 'student' %}
+        No account? <a href="{{ url_for('auth.student_register') }}">Create one</a>
+        {% elif role == 'staff' %}
+        No account? <a href="{{ url_for('auth.staff_register') }}">Create one</a>
+        {% else %}
+        Admin account is created by system setup.
+        {% endif %}
+    </p>
+</section>
+{% endblock %}

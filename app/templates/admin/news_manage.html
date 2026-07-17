@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Manage News{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-bullhorn"></i> News Creation Module</h2>
+            <p class="muted">Create structured news with text, image, and PDF attachments for staff and students.</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.admin_dashboard') }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="form-grid">
+        <label>News Title
+            <input type="text" name="title" required placeholder="Enter headline" />
+        </label>
+        <label>News Category
+            <select name="category" required>
+                {% for key, label in news_categories.items() %}
+                <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="full-width">News Content
+            <textarea name="content" required placeholder="Write full news details clearly"></textarea>
+        </label>
+        <label>Image (Optional)
+            <input type="file" name="image_file" accept=".jpg,.jpeg,.png,.webp" />
+        </label>
+        <label>PDF (Optional)
+            <input type="file" name="pdf_file" accept=".pdf" />
+        </label>
+        <button type="submit" class="btn accent"><i class="fa-solid fa-paper-plane"></i> Publish News</button>
+    </form>
+
+    <div class="news-grid">
+        {% for item in news_items %}
+        <article class="news-card">
+            <p class="muted">{{ item.category.replace('_', ' ')|title }} | {{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.content }}</p>
+            {% if item.image_filename %}
+            <img class="news-image" src="{{ url_for('static', filename='uploads/news/images/' ~ item.image_filename) }}"
+                alt="News image" />
+            {% endif %}
+            <div class="actions">
+                {% if item.pdf_filename %}
+                <a class="btn mini"
+                    href="{{ url_for('static', filename='uploads/news/pdfs/' ~ item.pdf_filename) }}"
+                    download><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+                {% endif %}
+                <span class="muted">By {{ item.created_by.full_name }}</span>
+            </div>
+        </article>
+        {% else %}
+        <article class="news-card">
+            <h3>No News Yet</h3>
+            <p class="muted">Published news will appear here for review.</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,115 @@
+# Data Flow Diagram — Student Result Management System
+
+## Level 0 (Context Diagram)
+
+Shows the entire system as a single process interacting with external entities.
+
+```mermaid
+flowchart LR
+    Staff([🧑‍🏫 Staff])
+    Student([🎓 Student])
+    System["Student Result\nManagement System"]
+    DB[(SQLite Database)]
+
+    Staff -- "Register / Login\nCredentials" --> System
+    Staff -- "Student Info\n(Name, Roll No, Year)" --> System
+    Staff -- "Marks Data\n(Internals, Model, University)" --> System
+    System -- "Dashboard, Student List,\nMarks Report" --> Staff
+
+    Student -- "Register / Login\nCredentials" --> System
+    System -- "Semester Marks,\nSGPA, CGPA Report" --> Student
+
+    System <-- "Read / Write\nAll Records" --> DB
+```
+
+---
+
+## Level 1 (Detailed DFD)
+
+Breaks the system into its major processes and shows data stores.
+
+```mermaid
+flowchart TD
+    %% ── External Entities ──
+    Staff([🧑‍🏫 Staff])
+    Student([🎓 Student])
+
+    %% ── Data Stores ──
+    DS1[(D1: User)]
+    DS2[(D2: Department)]
+    DS3[(D3: Student)]
+    DS4[(D4: Mark)]
+    DS5[(D5: Semester)]
+    DS6[(D6: SubjectTemplate)]
+
+    %% ── Processes ──
+    P1["1.0 Authentication\n(Register / Login / Logout)"]
+    P2["2.0 Department\nSelection"]
+    P3["3.0 Student\nManagement"]
+    P4["4.0 Marks\nManagement"]
+    P5["5.0 Result\nViewing"]
+
+    %% ── Staff flows ──
+    Staff -- "Staff credentials" --> P1
+    Staff -- "Select department" --> P2
+    Staff -- "Add / Edit / Delete\nstudent details" --> P3
+    Staff -- "Enter / Edit / Delete\nmarks data" --> P4
+
+    %% ── Student flows ──
+    Student -- "Student credentials" --> P1
+    Student -- "Select department" --> P2
+    Student -- "View results" --> P5
+
+    %% ── Process 1: Authentication ──
+    P1 -- "Create / Verify user" --> DS1
+    DS1 -- "User record" --> P1
+    P1 -- "Auth status" --> Staff
+    P1 -- "Auth status" --> Student
+
+    %% ── Process 2: Department Selection ──
+    DS2 -- "Department list" --> P2
+    P2 -- "Selected dept stored\nin session" --> P3
+    P2 -- "Selected dept stored\nin session" --> P4
+    P2 -- "Selected dept stored\nin session" --> P5
+
+    %% ── Process 3: Student Management ──
+    P3 -- "Create / Update / Delete" --> DS1
+    P3 -- "Create / Update / Delete" --> DS3
+    DS3 -- "Student list" --> P3
+    P3 -- "Student list &\nconfirmation" --> Staff
+
+    %% ── Process 4: Marks Management ──
+    DS5 -- "Semester info" --> P4
+    DS6 -- "Subject suggestions" --> P4
+    P4 -- "Save / Update / Delete\nmarks" --> DS4
+    DS4 -- "Existing marks" --> P4
+    P4 -- "Marks table &\nSGPA" --> Staff
+
+    %% ── Process 5: Result Viewing ──
+    DS4 -- "All marks\nfor student" --> P5
+    DS5 -- "Semester info" --> P5
+    P5 -- "Semester marks,\nSGPA, CGPA" --> Student
+```
+
+---
+
+## Process Descriptions
+
+| Process | Description | Input | Output | Data Stores Used |
+|---|---|---|---|---|
+| **1.0 Authentication** | Handles staff registration, student registration, login, and logout | Credentials (username, password, role) | Auth status, session token | D1: User, D3: Student |
+| **2.0 Department Selection** | Lets users pick a department; stores choice in session | Department ID | Session context | D2: Department |
+| **3.0 Student Management** | Staff can add, edit, or delete student records | Student details (name, roll no, phone, year) | Updated student list, confirmations | D1: User, D3: Student |
+| **4.0 Marks Management** | Staff enters/edits/deletes marks per student per semester | Mark values (internals, model, university exam) | Marks table, SGPA | D4: Mark, D5: Semester, D6: SubjectTemplate |
+| **5.0 Result Viewing** | Students view their marks across all semesters with SGPA & CGPA | Student ID (from session) | Semester-wise marks, SGPA, CGPA | D4: Mark, D5: Semester |
+
+## Data Store Descriptions
+
+| Store | Model | Key Fields |
+|---|---|---|
+| D1: User | [User](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#7-23) | id, role, full_name, username, password_hash, department_id |
+| D2: Department | [Department](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#30-34) | id, code, name |
+| D3: Student | [Student](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#53-62) | id, user_id, roll_number, phone_number, year |
+| D4: Mark | [Mark](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#64-81) | id, student_id, semester_id, subject_name, first_internal, second_internal, model_exam, university_exam |
+| D5: Semester | [Semester](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#36-40) | id, number, label |
+| D6: SubjectTemplate | [SubjectTemplate](file:///c:/Users/ELCOT/Documents/student%20result%20management%20system/app/models.py#42-51) | id, department_id, year, semester_id, subject_name |

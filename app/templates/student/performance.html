@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Performance Module{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-chart-line"></i> Performance Module</h2>
+            <p class="muted">{{ student.user.full_name }} | {{ student.roll_number }}</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.student_dashboard') }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="card" style="margin-top: 18px;">
+        <canvas id="performanceChart" height="100"></canvas>
+    </div>
+
+    <div class="metric" style="margin-top: 16px;">
+        <span>Dynamic Suggestion</span>
+        <strong style="font-size: 1.05rem;">{{ suggestion }}</strong>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {{ labels|tojson }};
+    const percentages = {{ percentages|tojson }};
+
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Semester Percentage',
+                data: percentages,
+                borderColor: '#26c281',
+                backgroundColor: 'rgba(38, 194, 129, 0.2)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

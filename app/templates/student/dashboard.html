@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-chart-simple"></i> Student Dashboard</h2>
+            <p class="muted">{{ student.user.full_name }} | {{ student.roll_number }}</p>
+        </div>
+        <div class="actions">
+            <div class="metric compact"><span>Overall CGPA</span><strong>{{ cgpa }}</strong></div>
+            <form method="post" action="{{ url_for('main.mark_notifications_read') }}">
+                <button class="btn" type="submit">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    {% if unread_count > 0 %}
+                    <span class="badge">{{ unread_count }}</span>
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="actions" style="margin-top: 14px;">
+        <a class="btn accent" href="{{ url_for('main.student_marks') }}"><i class="fa-solid fa-clipboard-check"></i> Open Marks Module</a>
+        <a class="btn" href="{{ url_for('main.student_performance') }}"><i class="fa-solid fa-chart-line"></i> Open Performance Module</a>
+    </div>
+
+    <div class="metrics">
+        {% for sem in range(1, 7) %}
+        <div class="metric">
+            <span>Semester {{ sem }} %</span>
+            <strong>{{ stats[sem].percentage }}</strong>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if role_notifications %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th><i class="fa-solid fa-bell"></i> Timetable / Announcement Updates</th>
+                    <th>Message</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in role_notifications %}
+                <tr>
+                    <td>{{ note.title }}</td>
+                    <td>{{ note.message }}</td>
+                    <td>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if news_items %}
+    <div class="news-grid">
+        {% for item in news_items[:3] %}
+        <article class="news-card">
+            <p class="muted">{{ item.category.replace('_', ' ')|title }} | {{ item.created_at.strftime('%Y-%m-%d') }}</p>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.content[:150] }}{% if item.content|length > 150 %}...{% endif %}</p>
+            {% if item.pdf_filename %}
+            <a class="btn mini" href="{{ url_for('static', filename='uploads/news/pdfs/' ~ item.pdf_filename) }}"
+                download><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

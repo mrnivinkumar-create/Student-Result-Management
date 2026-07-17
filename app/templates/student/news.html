@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Student News{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-newspaper"></i> Student News & Timetable Updates</h2>
+            <p class="muted">{{ student.roll_number }} | Latest announcements and downloadable files.</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.student_dashboard') }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    {% if role_notifications %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th><i class="fa-solid fa-bell"></i> Notifications</th>
+                    <th>Message</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in role_notifications %}
+                <tr>
+                    <td>{{ note.title }}</td>
+                    <td>{{ note.message }}</td>
+                    <td>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="news-grid">
+        {% for item in news_items %}
+        <article class="news-card">
+            <p class="muted">{{ news_categories.get(item.category, item.category) }} | {{ item.created_at.strftime('%Y-%m-%d') }}</p>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.content }}</p>
+            {% if item.image_filename %}
+            <img class="news-image" src="{{ url_for('static', filename='uploads/news/images/' ~ item.image_filename) }}"
+                alt="News image" />
+            {% endif %}
+            {% if item.pdf_filename %}
+            <a class="btn mini" href="{{ url_for('static', filename='uploads/news/pdfs/' ~ item.pdf_filename) }}"
+                download><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+            {% endif %}
+        </article>
+        {% else %}
+        <article class="news-card">
+            <h3>No News Available</h3>
+            <p class="muted">Admin published news will appear here.</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Select Department{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2><i class="fa-solid fa-building-columns"></i> Choose Department</h2>
+    <p class="muted" style="margin-bottom: 16px;">Select your department to continue to your dashboard.</p>
+    <form method="post" class="form-grid compact">
+        <label>Department
+            <select name="department_id" required>
+                <option value="">Select Department</option>
+                {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button class="btn primary" type="submit"><i class="fa-solid fa-arrow-right"></i> Continue</button>
+    </form>
+</section>
+{% endblock %}

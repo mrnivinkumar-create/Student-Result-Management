@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}Manage Marks{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-clipboard-check"></i> Marks: {{ student.user.full_name }}</h2>
+            <p class="muted">Roll: {{ student.roll_number }} | Semester {{ semester.number }}</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.staff_dashboard', year=student.year) }}"><i
+                class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="tabs">
+        {% for sem in range(1, 7) %}
+        <a class="tab {{ 'active' if sem == semester.number else '' }}"
+            href="{{ url_for('main.manage_marks', student_id=student.id, semester=sem) }}">Sem {{ sem }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="metrics">
+        <div class="metric"><span>Semester %</span><strong>{{ metrics.percentage }}</strong></div>
+        <div class="metric"><span>SGPA</span><strong>{{ metrics.sgpa }}</strong></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Total</th>
+                    <th>Max Total</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam_type, data in exam_breakdown.items() %}
+                <tr>
+                    <td>{{ data.label }}</td>
+                    <td>{{ data.total }}</td>
+                    <td>{{ data.max_total }}</td>
+                    <td><strong>{{ data.percentage }}%</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not has_subject_templates %}
+    <div class="flash warning" style="margin-top: 20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> No subjects configured for Semester {{ semester.number }}.
+        <a href="{{ url_for('main.staff_subjects', semester=semester.number) }}">Add subjects first</a> before entering marks.
+    </div>
+    {% else %}
+    <form method="post" class="form-grid marks-grid" style="margin-top: 20px;">
+        {% if edit_mark %}
+        <input type="hidden" name="mark_id" value="{{ edit_mark.id }}" />
+        {% endif %}
+        <label>Subject
+            <select name="subject_name" required>
+                <option value="">Select subject</option>
+                {% for subject in suggestions %}
+                <option value="{{ subject }}" {{ 'selected' if edit_mark and edit_mark.subject_name == subject else '' }}>{{ subject }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>First Internal<input type="number" name="first_internal" min="0" max="100" step="0.01" required
+                value="{{ edit_mark.first_internal if edit_mark else '' }}" placeholder="0-100" /></label>
+        <label>Second Internal<input type="number" name="second_internal" min="0" max="100" step="0.01" required
+                value="{{ edit_mark.second_internal if edit_mark else '' }}" placeholder="0-100" /></label>
+        <label>Model Exam<input type="number" name="model_exam" min="0" max="100" step="0.01" required
+                value="{{ edit_mark.model_exam if edit_mark else '' }}" placeholder="0-100" /></label>
+        <label>University Exam<input type="number" name="university_exam" min="0" max="100" step="0.01" required
+                value="{{ edit_mark.university_exam if edit_mark else '' }}" placeholder="0-100" /></label>
+        <label>Feedback For
+            <select name="feedback_exam_type">
+                <option value="">Optional feedback</option>
+                {% for feedback_exam_type, feedback_exam_label in feedback_exam_labels.items() %}
+                <option value="{{ feedback_exam_type }}">{{ feedback_exam_label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="full-width">Feedback Comments
+            <textarea name="feedback_comments"
+                placeholder="Enter improvement suggestions or performance feedback (optional)"></textarea>
+        </label>
+        <button class="btn accent" type="submit"><i class="fa-solid fa-{{ 'pen' if edit_mark else 'plus' }}"></i> {{
+            'Update Mark' if edit_mark else 'Add Mark' }}</button>
+        {% if edit_mark %}
+        <a class="btn" href="{{ url_for('main.manage_marks', student_id=student.id, semester=semester.number) }}"><i
+                class="fa-solid fa-xmark"></i> Cancel</a>
+        {% endif %}
+    </form>
+    {% endif %}
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>1st Internal</th>
+                    <th>2nd Internal</th>
+                    <th>Model</th>
+                    <th>University</th>
+                    <th>Average</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mark in marks %}
+                <tr>
+                    <td>{{ mark.subject_name }}</td>
+                    <td>{{ mark.first_internal }}</td>
+                    <td>{{ mark.second_internal }}</td>
+                    <td>{{ mark.model_exam }}</td>
+                    <td>{{ mark.university_exam }}</td>
+                    <td><strong>{{ mark.subject_average }}</strong></td>
+                    <td class="actions">
+                        <a class="btn mini"
+                            href="{{ url_for('main.manage_marks', student_id=student.id, semester=semester.number, edit_mark_id=mark.id) }}"><i
+                                class="fa-solid fa-pen"></i> Edit</a>
+                        <form method="post"
+                            action="{{ url_for('main.delete_mark', student_id=student.id, mark_id=mark.id) }}"
+                            onsubmit="return confirm('Delete this mark entry?')">
+                            <button class="btn mini danger" type="submit"><i class="fa-solid fa-trash"></i>
+                                Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="muted">No marks entered.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Feedback For</th>
+                    <th>Feedback By</th>
+                    <th>Comments</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedback_entries %}
+                <tr>
+                    <td>{{ feedback_exam_labels.get(feedback.exam_type, feedback.exam_type) }}</td>
+                    <td>{{ feedback.feedback_by.full_name }}</td>
+                    <td>{{ feedback.comments }}</td>
+                    <td>{{ feedback.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="muted">No feedback added for this semester.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

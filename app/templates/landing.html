@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Welcome | Student Result Management System{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <p class="kicker">College ERP</p>
+        <h1>Manage <span class="gradient-text">results, semesters</span>, and performance with confidence.</h1>
+        <p>A complete portal for staff and students with department-wise records, semester marks, percentages, and CGPA
+            tracking.</p>
+        <div class="hero-actions">
+            <a class="btn primary" href="{{ url_for('auth.login', role='student') }}"><i
+                    class="fa-solid fa-user-graduate"></i> Student Login</a>
+            <a class="btn accent" href="{{ url_for('auth.login', role='staff') }}"><i class="fa-solid fa-user-tie"></i>
+                Staff Login</a>
+            <a class="btn" href="{{ url_for('auth.login', role='admin') }}"><i class="fa-solid fa-shield-halved"></i>
+                Admin Login</a>
+        </div>
+    </div>
+    <div class="hero-card">
+        <h3>Quick Access</h3>
+        <a href="{{ url_for('auth.student_register') }}"><i class="fa-solid fa-id-card"></i> Create Student Account</a>
+        <a href="{{ url_for('auth.staff_register') }}"><i class="fa-solid fa-user-plus"></i> Create Staff Account</a>
+    </div>
+</section>
+
+<!-- Feature Cards -->
+<section class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-building-columns"></i></div>
+        <h4>Multi-Department</h4>
+        <p>Organize students and marks across multiple departments with ease.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+        <h4>6 Semester Tracking</h4>
+        <p>Enter and view internal, model, and university exam marks for every semester.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <h4>CGPA & Analytics</h4>
+        <p>Automatic SGPA, percentage, and cumulative CGPA calculation in real-time.</p>
+    </div>
+</section>
+{% endblock %}
