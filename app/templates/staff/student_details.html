@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Student Details{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-user-graduate"></i> Student Details: {{ student.user.full_name }}</h2>
+            <p class="muted">Roll: {{ student.roll_number }} | Semester {{ semester.number }}</p>
+        </div>
+        <div class="actions">
+            <a class="btn" href="{{ url_for('main.staff_student_details_list', year=student.year) }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+            <a class="btn" href="{{ url_for('main.edit_student', student_id=student.id) }}"><i class="fa-solid fa-pen"></i> Edit Profile</a>
+        </div>
+    </div>
+
+    <div class="tabs">
+        {% for sem in range(1, 7) %}
+        <a class="tab {{ 'active' if sem == semester.number else '' }}"
+            href="{{ url_for('main.staff_student_details', student_id=student.id, semester=sem) }}">Sem {{ sem }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="metrics">
+        <div class="metric"><span>Semester %</span><strong>{{ metrics.percentage }}</strong></div>
+        <div class="metric"><span>SGPA</span><strong>{{ metrics.sgpa }}</strong></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Total</th>
+                    <th>Max Total</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam_type, data in exam_breakdown.items() %}
+                <tr>
+                    <td>{{ data.label }}</td>
+                    <td>{{ data.total }}</td>
+                    <td>{{ data.max_total }}</td>
+                    <td><strong>{{ data.percentage }}%</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not has_subject_templates %}
+    <div class="flash warning" style="margin-top: 20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> No subjects configured for Semester {{ semester.number }}.
+        <a href="{{ url_for('main.staff_subjects', semester=semester.number) }}">Add subjects first</a>.
+    </div>
+    {% else %}
+    <form method="post" style="margin-top: 18px;">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject (Added Order)</th>
+                        <th>1st Internal</th>
+                        <th>2nd Internal</th>
+                        <th>Model</th>
+                        <th>University</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mark in marks %}
+                    <tr>
+                        <td>
+                            <input type="hidden" name="mark_id" value="{{ mark.id }}" />
+                            {{ mark.subject_name }}
+                        </td>
+                        <td><input type="number" name="first_internal_{{ mark.id }}" min="0" max="100" step="0.01"
+                                value="{{ mark.first_internal }}" required /></td>
+                        <td><input type="number" name="second_internal_{{ mark.id }}" min="0" max="100" step="0.01"
+                                value="{{ mark.second_internal }}" required /></td>
+                        <td><input type="number" name="model_exam_{{ mark.id }}" min="0" max="100" step="0.01"
+                                value="{{ mark.model_exam }}" required /></td>
+                        <td><input type="number" name="university_exam_{{ mark.id }}" min="0" max="100" step="0.01"
+                                value="{{ mark.university_exam }}" required /></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button class="btn accent" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Semester Marks</button>
+    </form>
+    {% endif %}
+</section>
+{% endblock %}

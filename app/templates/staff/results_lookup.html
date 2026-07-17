@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Result Lookup{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Result Lookup</h2>
+            <p class="muted">{{ department.name }} | Retrieve marks by roll number, semester, and exam type.</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.staff_dashboard') }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    <form method="post" class="form-grid marks-grid">
+        <label>Roll Number
+            <input type="text" name="roll_number" required value="{{ roll_number }}" placeholder="Enter roll number" />
+        </label>
+        <label>Semester
+            <select name="semester" required>
+                {% for sem in range(1, 7) %}
+                <option value="{{ sem }}" {{ 'selected' if sem == semester_number else '' }}>Semester {{ sem }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Exam Type
+            <select name="exam_type" required>
+                {% for exam_key, exam_label in exam_labels.items() %}
+                <option value="{{ exam_key }}" {{ 'selected' if exam_key == exam_type else '' }}>{{ exam_label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button class="btn accent" type="submit"><i class="fa-solid fa-table"></i> View Result</button>
+    </form>
+
+    {% if student and semester %}
+    <div class="metrics">
+        <div class="metric metric-text"><span>Student</span><strong>{{ student.roll_number }}</strong></div>
+        <div class="metric"><span>Name</span><strong>{{ student.user.full_name }}</strong></div>
+        <div class="metric"><span>Exam</span><strong>{{ exam_labels[exam_type] }}</strong></div>
+        <div class="metric"><span>Semester</span><strong>{{ semester.number }}</strong></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>{{ exam_labels[exam_type] }} Mark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mark in marks %}
+                <tr>
+                    <td>{{ mark.subject_name }}</td>
+                    <td>{{ mark|attr(exam_type) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" class="muted">No marks available for this semester.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Total</th>
+                    <th>Max Total</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ summary.total }}</td>
+                    <td>{{ summary.max_total }}</td>
+                    <td><strong>{{ summary.percentage }}%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

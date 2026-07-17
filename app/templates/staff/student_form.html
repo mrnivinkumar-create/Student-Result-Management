@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{% if mode == 'create' %}Add Student{% else %}Edit Student{% endif %}{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2>
+        {% if mode == 'create' %}
+        <i class="fa-solid fa-user-plus"></i> Add Student
+        {% else %}
+        <i class="fa-solid fa-user-pen"></i> Edit Student
+        {% endif %}
+    </h2>
+    <form method="post" class="form-grid">
+        <label>Full Name<input name="full_name" required value="{{ student.user.full_name if student else '' }}"
+                placeholder="Enter full name" /></label>
+        {% if mode == 'create' %}
+        <label>Roll Number<input name="roll_number" required placeholder="Enter roll number" /></label>
+        {% else %}
+        <label>Roll Number<input value="{{ student.roll_number }}" disabled /></label>
+        {% endif %}
+        <label>Phone Number<input name="phone_number" required maxlength="15"
+                value="{{ student.phone_number if student else '' }}" placeholder="Enter phone number" /></label>
+        <label>Year
+            <select name="year" required>
+                <option value="1" {{ 'selected' if student and student.year==1 else '' }}>First Year</option>
+                <option value="2" {{ 'selected' if student and student.year==2 else '' }}>Second Year</option>
+                <option value="3" {{ 'selected' if student and student.year==3 else '' }}>Final Year</option>
+            </select>
+        </label>
+        <button class="btn primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+    </form>
+</section>
+{% endblock %}

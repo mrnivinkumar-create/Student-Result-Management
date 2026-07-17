@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Student Details{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-address-card"></i> Student Details</h2>
+            <p class="muted">{{ department.name }} | {{ year_label[year] }}</p>
+        </div>
+        <a class="btn" href="{{ url_for('main.staff_dashboard', year=year) }}"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="tabs">
+        <a href="{{ url_for('main.staff_student_details_list', year=1) }}" class="tab {{ 'active' if year == 1 else '' }}">First Year</a>
+        <a href="{{ url_for('main.staff_student_details_list', year=2) }}" class="tab {{ 'active' if year == 2 else '' }}">Second Year</a>
+        <a href="{{ url_for('main.staff_student_details_list', year=3) }}" class="tab {{ 'active' if year == 3 else '' }}">Final Year</a>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.roll_number }}</td>
+                    <td>{{ student.user.full_name }}</td>
+                    <td>{{ student.phone_number }}</td>
+                    <td class="actions">
+                        <a class="btn mini"
+                            href="{{ url_for('main.staff_student_details', student_id=student.id, semester=1) }}"><i class="fa-solid fa-clipboard-check"></i> Open</a>
+                        <a class="btn mini"
+                            href="{{ url_for('main.edit_student', student_id=student.id) }}"><i class="fa-solid fa-pen"></i> Edit Profile</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="muted">No students in this year.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

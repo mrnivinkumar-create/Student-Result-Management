@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="row-between">
+        <div>
+            <h2><i class="fa-solid fa-shield-halved"></i> Admin Module</h2>
+            <p class="muted">Manage and monitor staff, students, semester alignment, feedback, and notifications.</p>
+        </div>
+        <a class="btn accent" href="{{ url_for('main.admin_news') }}"><i class="fa-solid fa-bullhorn"></i> Create News</a>
+    </div>
+
+    <div class="metrics">
+        <div class="metric"><span>Total Staff</span><strong>{{ staff_members|length }}</strong></div>
+        <div class="metric"><span>Total Students</span><strong>{{ students|length }}</strong></div>
+        <div class="metric"><span>Feedback Entries</span><strong>{{ recent_feedback|length }} recent</strong></div>
+        <div class="metric"><span>Notifications</span><strong>{{ recent_notifications|length }} recent</strong></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Staff Name</th>
+                    <th>Username</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_members %}
+                <tr>
+                    <td>{{ staff.full_name }}</td>
+                    <td>{{ staff.username }}</td>
+                    <td>{{ staff.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="muted">No staff records.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Semester</th>
+                    <th>Subjects</th>
+                    <th>First Internal %</th>
+                    <th>Second Internal %</th>
+                    <th>Model %</th>
+                    <th>University %</th>
+                    <th>Feedback Count</th>
+                    <th>Notification Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.student.roll_number }}</td>
+                    <td>{{ row.student.user.full_name }}</td>
+                    <td>{{ row.semester }}</td>
+                    <td>{{ row.subject_count }}</td>
+                    <td>{{ row.first_internal_percentage }}%</td>
+                    <td>{{ row.second_internal_percentage }}%</td>
+                    <td>{{ row.model_exam_percentage }}%</td>
+                    <td>{{ row.university_exam_percentage }}%</td>
+                    <td>{{ row.feedback_count }}</td>
+                    <td>{{ row.notification_count }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="10" class="muted">No student rows available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Recent Feedback</th>
+                    <th>Semester</th>
+                    <th>Student</th>
+                    <th>By</th>
+                    <th>Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recent_feedback %}
+                <tr>
+                    <td>{{ item.exam_type.replace('_', ' ')|title }}</td>
+                    <td>{{ item.semester.number }}</td>
+                    <td>{{ item.student.roll_number }}</td>
+                    <td>{{ item.feedback_by.full_name }}</td>
+                    <td>{{ item.comments }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="muted">No feedback entries yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Recent Notifications</th>
+                    <th>Student</th>
+                    <th>Semester</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recent_notifications %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.student.roll_number }}</td>
+                    <td>{{ item.semester.number if item.semester else '-' }}</td>
+                    <td>{{ item.message }}</td>
+                    <td>{{ 'Read' if item.is_read else 'Unread' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="muted">No notifications yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Latest News</th>
+                    <th>Category</th>
+                    <th>Created By</th>
+                    <th>Date</th>
+                    <th>PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in latest_news %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.category.replace('_', ' ')|title }}</td>
+                    <td>{{ item.created_by.full_name }}</td>
+                    <td>{{ item.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if item.pdf_filename %}
+                        <a class="btn mini"
+                            href="{{ url_for('static', filename='uploads/news/pdfs/' ~ item.pdf_filename) }}"
+                            download><i class="fa-solid fa-file-pdf"></i> Download</a>
+                        {% else %}
+                        <span class="muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="muted">No news created yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
